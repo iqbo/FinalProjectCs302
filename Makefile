@@ -1,6 +1,4 @@
-superHex: superHex.o
-	g++ -g -std=c++11 superHex.o -o superHex
-superHex.o: src/main.cpp
-	g++ -g -std=c++11 -c src/main.cpp
+superHex: src/main.cpp
+	g++ -g -std=c++11 src/main.cpp -o superHex
 clean: 
-	rm *.o
+	rm superHex
