@@ -1,0 +1,4 @@
+SDL Lesson 1 (AltSDLtutorialOne.cpp)
+    30pts
+A starting version of the CentralCircle class (CentralCircle.cpp)
+    10pts
