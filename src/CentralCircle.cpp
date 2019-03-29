@@ -9,8 +9,22 @@ class Circle{
 	int angularPointPos;
 
 	int radius;
+	
+	public:
+		void moveDot(char);
+
 
 };
 
 //testing main
-int main(){return 0;}
+int main(){
+
+	return 0;
+}
+
+/*dir can be a keyoutput
+ * up, down, left, right, etc*/
+void moveDot(char dir){
+
+
+}
