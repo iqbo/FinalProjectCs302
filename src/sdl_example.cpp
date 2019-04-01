@@ -1,7 +1,13 @@
+#define _USE_MATH_DEFINES
+
 #include <SDL2/SDL.h>
 #include <vector>
+#include <math.h>
+#include <cmath>
 #include <cstdio>
 using namespace std;
+
+const float PI = M_PI;
 
 class Player {
 	public:
@@ -11,6 +17,36 @@ class Player {
 		int xPos;
 		int yPos;
 };
+
+class Shell {
+	public:
+		bool walls[6];
+		void Draw(SDL_Renderer * gRenderer);
+};
+
+void Shell::Draw(SDL_Renderer * gRenderer){
+	float x1, y1, x2, y2;
+	float angle;
+
+	float height, base;
+	base = 100;
+	height = 86.6025404;
+
+	for (float i = 0; i < 6; i++) {
+		if (walls[(int)i]) {
+			angle = 2*PI * i/6;
+			x1 = base * sin(angle + PI/2) + 200;
+			y1 = height * sin(angle) + 200;
+			x2 = base * sin(angle + PI/2 + PI/3) + 200;
+			y2 = height * sin(angle + PI/3) + 200;
+			//Draw a line corresponding to one side of the hexagon
+			SDL_SetRenderDrawColor(gRenderer, 150, 200, 250, 255);
+			SDL_RenderDrawLine(gRenderer, x1, y1, x2, y2);
+		}
+	}
+
+	return;
+}
 
 //Super simple variables that set movement to true or false
 //Usage:
@@ -51,6 +87,15 @@ void setColors(){
 }
 
 int main(){
+	Shell shell;
+	shell.walls[0] = 1;
+	shell.walls[1] = 0;
+	shell.walls[2] = 0;
+	shell.walls[3] = 0;
+	shell.walls[4] = 0;
+	shell.walls[5] = 1;
+
+
 	setColors();
 
 	printf("Opening SDL example\n");
@@ -72,11 +117,15 @@ int main(){
 	SDL_Renderer * gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_PRESENTVSYNC);
 
 
+	shell.Draw(gRenderer);
 	//END SDL INITIALIZING
 
 	Player player;
 	player.xPos = SCREEN_W / 2;
 	player.yPos = SCREEN_H / 4;
+
+	player.movingRight = false;
+	player.movingLeft = false;
 
 	int current = 0;
 	while (not quit) {
@@ -131,7 +180,7 @@ int main(){
 		SDL_Rect fillRect = {player.xPos, player.yPos, SCREEN_W/20, SCREEN_H/20};
 		SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
 		SDL_RenderFillRect(gRenderer, &fillRect);
-		
+		shell.Draw(gRenderer);
 
 		//Update the window when all done
 		SDL_UpdateWindowSurface(gWindow);
