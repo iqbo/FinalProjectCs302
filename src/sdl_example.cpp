@@ -172,7 +172,22 @@ int main(){
 		if (player.movingRight){
 			player.xPos += 1;
 		}
+	
+
+
+
+
+		//handles player-wall collisions
 		
+
+
+
+
+
+
+
+
+
 		//Clear the screen
 		SDL_SetRenderDrawColor(gRenderer, 100, 0, 100, 255);
 		SDL_RenderClear(gRenderer);
