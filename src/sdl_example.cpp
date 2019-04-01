@@ -88,13 +88,14 @@ void setColors(){
 
 int main(){
 	Shell shell;
-	shell.walls[0] = 1;
+
+	//1 = visible wall
+	shell.walls[0] = 0;
 	shell.walls[1] = 0;
 	shell.walls[2] = 0;
 	shell.walls[3] = 0;
 	shell.walls[4] = 0;
-	shell.walls[5] = 1;
-
+	shell.walls[5] = 0;
 
 	setColors();
 
