@@ -88,13 +88,14 @@ void setColors(){
 
 int main(){
 	Shell shell;
-	shell.walls[0] = 1;
+
+	//1 = visible wall
+	shell.walls[0] = 0;
 	shell.walls[1] = 0;
 	shell.walls[2] = 0;
 	shell.walls[3] = 0;
 	shell.walls[4] = 0;
-	shell.walls[5] = 1;
-
+	shell.walls[5] = 0;
 
 	setColors();
 
@@ -171,7 +172,22 @@ int main(){
 		if (player.movingRight){
 			player.xPos += 1;
 		}
+	
+
+
+
+
+		//handles player-wall collisions
 		
+
+
+
+
+
+
+
+
+
 		//Clear the screen
 		SDL_SetRenderDrawColor(gRenderer, 100, 0, 100, 255);
 		SDL_RenderClear(gRenderer);
