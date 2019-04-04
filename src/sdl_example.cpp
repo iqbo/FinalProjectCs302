@@ -35,6 +35,7 @@ class Shell {
 
 //Most of Ltexture taken from lazyfoo.net
 //Texture wrapper class
+/*
 class LTexture
 {
     public:
@@ -132,7 +133,7 @@ int LTexture::getWidth(){
 int LTexture::getHeight(){
 	return mHeight;
 }
-
+*/
 
 void Shell::genRandom(int difficulty){
 	int random_i;
