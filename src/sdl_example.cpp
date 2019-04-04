@@ -1,13 +1,19 @@
 #define _USE_MATH_DEFINES
 
+#include <time.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <vector>
 #include <math.h>
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
+#include <stdio.h>
+#include <iostream>
+#include <string>
 using namespace std;
 
-const float PI = M_PI;
+const double PI = M_PI;
 
 class Player {
 	public:
@@ -22,17 +28,144 @@ class Shell {
 	public:
 		bool walls[6];
 		void Draw(SDL_Renderer * gRenderer);
+		double size;
+		void genRandom(int difficulty); //gonna get harder as game goes on
+										// AKA add more walls
 };
 
-void Shell::Draw(SDL_Renderer * gRenderer){
-	float x1, y1, x2, y2;
-	float angle;
+//Most of Ltexture taken from lazyfoo.net
+//Texture wrapper class
+class LTexture
+{
+    public:
+        //Initializes variables
+        LTexture();
 
-	float height, base;
+        //Deallocates memory
+        ~LTexture();
+
+        //Loads image at specified path
+        bool loadFromFile( std::string path );
+
+        //Deallocates texture
+        void free();
+
+        //Set color modulation
+        void setColor( Uint8 red, Uint8 green, Uint8 blue );
+
+        //Set blending
+        void setBlendMode( SDL_BlendMode blending );
+
+        //Set alpha modulation
+        void setAlpha( Uint8 alpha );
+        
+        //Renders texture at given point
+        void render( int x, int y, SDL_Rect* clip = NULL, double angle = 0.0, SDL_Point* center = NULL, SDL_RendererFlip flip = SDL_FLIP_NONE );
+
+        //Gets image dimensions
+        int getWidth();
+        int getHeight();
+
+    private:
+        //The actual hardware texture
+        SDL_Texture* mTexture;
+
+        //Image dimensions
+        int mWidth;
+        int mHeight;
+};
+LTexture::LTexture(){
+
+	return;
+}
+LTexture::~LTexture(){
+
+	return;
+}
+
+bool LTexture::loadFromFile(string path){
+	
+	return true;
+}
+
+void LTexture::free(){
+	
+	return;
+}
+
+void LTexture::setColor(Uint8 red, Uint8 green, Uint8 blue){
+	
+	return;
+}
+
+void LTexture::setBlendMode(SDL_BlendMode blending){
+	
+	return;
+}
+
+void LTexture::setAlpha(Uint8 alpha){
+	
+	return;
+}
+
+void LTexture::render(int x, int y, class SDL_Rect* clip = NULL, double angle = 0.0,
+		class SDL_Point * center = NULL, SDL_RendererFlip flip = SDL_FLIP_NONE){
+	//Set rendering space and render to screen
+    SDL_Rect renderQuad = { x, y, mWidth, mHeight };
+
+    //Set clip rendering dimensions
+    if( clip != NULL )
+    {
+        renderQuad.w = clip->w;
+        renderQuad.h = clip->h;
+    }
+
+    //Render to screen
+    SDL_RenderCopyEx( gRenderer, mTexture, clip, &renderQuad, angle, center, flip );
+	return;
+}
+
+int LTexture::getWidth(){
+	return mWidth;
+}
+
+int LTexture::getHeight(){
+	return mHeight;
+}
+
+
+void Shell::genRandom(int difficulty){
+	int random_i;
+	int numWalls = 0;
+
+	for (int i = 0; i < 6; i++){
+		random_i = rand()%2;
+		if (random_i){
+			walls[i] = 1;
+			numWalls += 1;
+		} else {
+			walls[i] = 0;
+		}
+		if (numWalls == difficulty){
+			for (int j = i+1; j < 6; j++){
+				walls[j] = 0;
+			}
+			break;
+		}
+	}
+
+	return;
+}
+
+void Shell::Draw(SDL_Renderer * gRenderer){
+	double x1, y1, x2, y2;
+	double angle;
+
+	double height, base;
 	base = 100;
 	height = 86.6025404;
 
-	for (float i = 0; i < 6; i++) {
+	for (double i = 0; i < 6; i++) {
 		if (walls[(int)i]) {
 			angle = 2*PI * i/6;
 			x1 = base * sin(angle + PI/2) + 200;
@@ -87,22 +220,18 @@ void setColors(){
 }
 
 int main(){
-	Shell shell;
+	srand(time(NULL));
+	int difficulty = 1;
+	int counter = 1;
 
-	//1 = visible wall
-	shell.walls[0] = 0;
-	shell.walls[1] = 0;
-	shell.walls[2] = 0;
-	shell.walls[3] = 0;
-	shell.walls[4] = 0;
-	shell.walls[5] = 0;
+	Shell shell;
 
 	setColors();
 
 	printf("Opening SDL example\n");
 
 	//BEGIN SDL INITIALIZING
-	
+
 	bool quit = false;
 	SDL_Event e;
 
@@ -112,6 +241,8 @@ int main(){
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0){
 		printf("SDL couldn't initialize");
 	}
+	
+	IMG_Init(IMG_INIT_PNG);
 
 	SDL_Window * gWindow = SDL_CreateWindow("SDL Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED
 			, SCREEN_W, SCREEN_H, SDL_WINDOW_RESIZABLE);
@@ -161,8 +292,17 @@ int main(){
 						player.movingRight = false;
 						printf("Ending Right\n");
 						break;
+					case 'e':
+						shell.genRandom(difficulty);
+						counter += 1;
+						printf("Pressed e\n");
 				}
 			}
+		}
+		if (counter % 10 == 0 and difficulty < 5) {
+			difficulty += 1;
+			counter += 1;
+			printf("Difficulty up to %d\n", difficulty);
 		}
 
 		//Now handle player movement
@@ -172,13 +312,13 @@ int main(){
 		if (player.movingRight){
 			player.xPos += 1;
 		}
-	
+
 
 
 
 
 		//handles player-wall collisions
-		
+
 
 
 
