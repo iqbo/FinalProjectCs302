@@ -1,10 +1,12 @@
-//Using SDL, SDL_image, standard IO, math, and strings
-#include "SDL/SDL.h"
-#include "SDL/SDL_image.h"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <cstdlib>
 #include <string>
 #include <math.h>
+#include <vector>
+
+using namespace std;
 
 //Screen dimension constants
 const int SCREEN_WIDTH = 640;
@@ -118,7 +120,7 @@ SDL_Texture* loadTexture( std::string path )
 	else
 	{
 		//Create texture from surface pixels
-        newTexture = SDL_CreateTextureFromSurface( gRenderer, loadedSurface );
+		newTexture = SDL_CreateTextureFromSurface( gRenderer, loadedSurface );
 		if( newTexture == NULL )
 		{
 			printf( "Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError() );
@@ -130,6 +132,49 @@ SDL_Texture* loadTexture( std::string path )
 
 	return newTexture;
 }
+
+void drawHexagon(){
+	//Draw hexagon
+	srand(time(NULL));
+
+	SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0xFF, 0xFF );
+
+	int centerx = SCREEN_WIDTH / 2.0;
+	int centery = SCREEN_HEIGHT / 2.0;
+
+	int radius = 100;					//Radius of 100 pixels
+
+	double theta = M_PI / 6.0;
+
+	vector<int> xpts;
+	vector<int> ypts;
+
+	for(int i = 0; i < 6; i++){
+		xpts.push_back(centerx + radius * cos(theta));
+		ypts.push_back(centery + radius * sin(theta));
+
+		theta += M_PI / 3.0;		//Place point every 60 degs along circle to form a hexagon
+	}
+
+
+	for(int i = 0; i < xpts.size(); i++){
+		int empty = rand() % xpts.size();
+
+		if(i != empty){								//Dont draw if i == empty
+			if(i < xpts.size() - 1){
+
+				SDL_RenderDrawLine( gRenderer, xpts[i], ypts[i], xpts[i+1], ypts[i+1] );
+
+			} else {												//if last point, draw line to zeroth point
+
+				SDL_RenderDrawLine( gRenderer, xpts[i], ypts[i], xpts[0], ypts[0] );
+
+			}
+		}
+	}
+
+}
+
 
 int main( int argc, char* args[] )
 {
@@ -174,47 +219,13 @@ int main( int argc, char* args[] )
 				SDL_Rect outlineRect = { SCREEN_WIDTH / 6, SCREEN_HEIGHT / 6, SCREEN_WIDTH * 2 / 3, SCREEN_HEIGHT * 2 / 3 };
 				SDL_SetRenderDrawColor( gRenderer, 0x00, 0xFF, 0x00, 0xFF );		
 				SDL_RenderDrawRect( gRenderer, &outlineRect );
-				
+
 				//Draw blue horizontal line
 				SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0xFF, 0xFF );		
 				SDL_RenderDrawLine( gRenderer, 0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2 );
 
 				//Draw hexagon
-				SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0xFF, 0xFF );
-
-				int centerx = SCREEN_WIDTH / 2.0;
-				int centery = SCREEN_HEIGHT / 2,0;
-				int radius = 100;					//Radius of 100 pixels
-				double theta = M_PI / 6.0;
-				vector<int> xpts;
-				vector<int> ypts;
-
-				for(int i = 0; i < 6; i++){
-					xpts.push_back(centerx + radius * cos(theta));
-					ypts.push_back(centery + radius * sin(theta));
-
-					theta += M_PI / 3.0;		//Place point every 60 degs along circle to form a hexagon
-				}
-
-
-				for(int i = 0; i < xpts.size(); i++){
-					empty = rand() % xpts.size();
-					
-					if(i != empty){								//Dont draw if i == empty
-						if(i < xpts.size() - 1){
-						
-							SDL_RenderDrawLine( gRenderer, xpts(i), ypts(i), xpts(i+1), ypts(i+1));
-						
-						} else {												//if last point, draw line to zeroth point
-							
-							SDL_RenderDrawLine( gRenderer, xpts(i), ypts(i), xpts(0), ypts(0));
-						
-						}
-					}
-				}
-
-				
-
+				drawHexagon();
 
 				//Draw vertical line of yellow dots
 				SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0x00, 0xFF );
