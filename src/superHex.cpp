@@ -29,6 +29,7 @@ class Player {
 
 		int xPos;
 		int yPos;
+		SDL_Surface * img;
 };
 
 class Shell {
@@ -175,8 +176,9 @@ int main(){
 	gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_PRESENTVSYNC);
 	gScreenSurface = SDL_GetWindowSurface(gWindow);
 
-	//Grab the texture for the hexagon side
 	Shell shell;
+	
+	//Grab the texture for the hexagon side
 	char buff[100];
 	hexSides.resize(6);
 	for (int i = 0; i < 6; i++) {
@@ -185,8 +187,7 @@ int main(){
 		hexSides[i] = loadSurface(buff);
 	}
 
-	shell.Draw(gRenderer);
-	
+
 	//END SDL INITIALIZING
 
 	Player player;
@@ -195,6 +196,9 @@ int main(){
 
 	player.movingRight = false;
 	player.movingLeft = false;
+	
+	//And for the player
+	player.img = loadSurface("images/Player.png");
 
 	int current = 0;
 	while (not quit) {
@@ -265,22 +269,28 @@ int main(){
 
 
 		SDL_Rect fillRect;
+		
 
 		//Clear the screen
 		SDL_SetRenderDrawColor(gRenderer, 100, 0, 100, 255);
-		fillRect = {0, 0, SCREEN_W, SCREEN_H};
-		SDL_RenderFillRect(gRenderer, &fillRect);
 		SDL_RenderClear(gRenderer);
+		SDL_FillRect(gScreenSurface, 0, 0);
 
-		//Draw the player to the screen (broken for now)
-		fillRect = {player.xPos, player.yPos, SCREEN_W/20, SCREEN_H/20};
-		SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
-		SDL_RenderFillRect(gRenderer, &fillRect);
+
+		//Draw the player
+		SDL_Rect R;
+		R.x = player.xPos;
+		R.y = player.yPos;
+		R.w = 20;
+		R.h = 20;
+		SDL_BlitScaled(player.img, NULL, gScreenSurface, &R);
+
 		shell.Draw(gRenderer);
+		SDL_UpdateWindowSurface(gWindow);
 
 		//Update the window when all done
-		SDL_UpdateWindowSurface(gWindow);
-		SDL_RenderPresent(gRenderer);
+		//SDL_RenderPresent(gRenderer);
+		
 		//Waiting 33 milliseconds, i.e. 30 fps
 		SDL_Delay(33);
 	}
