@@ -14,6 +14,7 @@
 using namespace std;
 
 const double PI = M_PI;
+const int framerate = 60;
 
 //SDL Stuff
 SDL_Surface  * gScreenSurface = NULL;
@@ -272,8 +273,8 @@ int main(){
 		
 
 		//Clear the screen
-		SDL_SetRenderDrawColor(gRenderer, 100, 0, 100, 255);
-		SDL_RenderClear(gRenderer);
+		//SDL_SetRenderDrawColor(gRenderer, 100, 0, 100, 255);
+		//SDL_RenderClear(gRenderer);
 		SDL_FillRect(gScreenSurface, 0, 0);
 
 
@@ -291,8 +292,8 @@ int main(){
 		//Update the window when all done
 		//SDL_RenderPresent(gRenderer);
 		
-		//Waiting 33 milliseconds, i.e. 30 fps
-		SDL_Delay(33);
+		//Waiting in milliseconds
+		SDL_Delay(1000/framerate);
 	}
 
 	printf("Closing...\n");
