@@ -118,15 +118,21 @@ void Shell::Draw(SDL_Renderer * gRenderer){
 	//UPDATED using PNG image file
 	vector <int> widths  = {324, 197, 196, 324, 196, 196};
 	vector <int> heights = {51, 286, 289, 51, 289, 289};
+
+	vector <int> startX = {334, 633, 633, 334, 160, 160};
+	vector <int> startY = {207, 207, 501, 734, 501, 207};
 	for (int i = 0; i < 6; i++) {
 		if (walls[i]) {
 			angle = 2*PI * i/6;
 			
 			SDL_Rect R;
-			R.x = 100 * cos(angle) + 200;
-			R.y = 100 * sin(angle) + 200;
+
+			R.x = startX[i]/2 + 200;
+			R.y = startY[i]/2 + 200;
+
 			R.w = widths[i]/2;
 			R.h = heights[i]/2;
+
 			SDL_BlitScaled(hexSides[i], NULL, gScreenSurface, &R);
 		}
 	}
@@ -187,7 +193,7 @@ int main(){
 		snprintf(buff, sizeof(buff), "images/hexSide%d.png", i);
 		hexSides[i] = loadSurface(buff);
 	}
-
+	SDL_Surface * background = loadSurface("images/white.png");
 
 	//END SDL INITIALIZING
 
@@ -270,12 +276,17 @@ int main(){
 
 
 		SDL_Rect fillRect;
-		
+		fillRect.x = 0;
+		fillRect.y = 0;
+		fillRect.w = SCREEN_W;
+		fillRect.h = SCREEN_H;
 
 		//Clear the screen
+		SDL_BlitScaled(background, NULL, gScreenSurface, &fillRect);
+
 		//SDL_SetRenderDrawColor(gRenderer, 100, 0, 100, 255);
 		//SDL_RenderClear(gRenderer);
-		SDL_FillRect(gScreenSurface, 0, 0);
+		//SDL_FillRect(gScreenSurface, 0, 0);
 
 
 		//Draw the player
