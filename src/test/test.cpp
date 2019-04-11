@@ -256,7 +256,7 @@ int main(){
 		for (int i = 0; i < 3; i++) {
 			shells[i].size -= 1;
 			if (shells[i].size <= 0) {
-				shells[i].size = 200;
+				shells[i].size = 300;
 				shells[i].genRandom(difficulty);
 				counter += 1;
 			}
