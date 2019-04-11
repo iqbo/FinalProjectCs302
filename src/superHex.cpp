@@ -11,6 +11,9 @@
 #include <stdio.h>
 #include <iostream>
 #include <string>
+
+#include "hexgraph.h"
+
 using namespace std;
 
 const double PI = M_PI;

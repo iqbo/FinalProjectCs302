@@ -15,7 +15,7 @@ struct node {	//each node represents a wall
 	node * left = NULL;			//node to the left 
 	node * right = NULL;			//node to the right
 	int rank;	//which shell this node belongs to
-}
+};
 
 class Hexgraph {
 	public: 
@@ -25,7 +25,7 @@ class Hexgraph {
 		int maxRank;							//highest rank
 		int findPath();						//finds a path
 		vector< vector<node *> >nodes;		//nodes[0] are all nodes in rank 0 shell
-}
+};
 
 //initiliazes graph, source node in center with opening to each of rank 0 node
 Hexgraph::Hexgraph(){
@@ -45,7 +45,7 @@ void Hexgraph::addShell(bool walls[6]){
 //		 if a node has an opening filed it connects to a higher ranking node
 
 // Probably BFS
-void Hexgraph::findpath(){
+int Hexgraph::findPath(){
 
 }
 
