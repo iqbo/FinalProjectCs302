@@ -39,10 +39,13 @@ void Hexgraph::addShell(bool walls[6]){
 	//after adding new shell, checking previous shell to set its node opening fields
 }
 
+//findPath
 //searchs for a path from node[0][0] to highest ranking node
 //rules: every node has left and ride field
 //		 if a node has an opening filed it connects to a higher ranking node
-Hexgraph::findpath(){
+
+// Probably BFS
+void Hexgraph::findpath(){
 
 }
 
