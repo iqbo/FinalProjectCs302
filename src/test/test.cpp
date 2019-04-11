@@ -234,6 +234,13 @@ int main(){
 			player.angle += 0.05;
 		}
 
+		//Makes sure the player is within [0, 2PI]
+		if (player.angle > 2*PI) {
+			player.angle = player.angle - 2*PI;
+		} else if (player.angle < 0) {
+			player.angle = player.angle + 2*PI;
+		} 
+
 
 
 
@@ -253,6 +260,8 @@ int main(){
 		SDL_SetRenderDrawColor(gRenderer, 100, 0, 100, 255);
 		SDL_RenderClear(gRenderer);
 
+		int p_sector = (player.angle / (PI/3));
+
 		for (int i = 0; i < 3; i++) {
 			shells[i].size -= 1;
 			if (shells[i].size <= 0) {
@@ -260,6 +269,14 @@ int main(){
 				shells[i].genRandom(difficulty);
 				counter += 1;
 			}
+
+			if (abs(shells[i].size - 50) <= 10) {
+				if (shells[i].walls[p_sector]) {
+					printf("You ded m8\n\n");
+					shells[i].genRandom(0);
+				}
+			}
+
 			shells[i].Draw(gRenderer);
 		}
 
@@ -271,7 +288,7 @@ int main(){
 		SDL_RenderFillRect(gRenderer, &fillRect);
 
 		//Update the window when all done
-		SDL_UpdateWindowSurface(gWindow);
+		//SDL_UpdateWindowSurface(gWindow);
 		SDL_RenderPresent(gRenderer);
 		//Waiting 16 milliseconds, i.e. 60 fps
 		//SDL_Delay(16);
