@@ -37,6 +37,15 @@ Hexgraph::Hexgraph(){
 void Hexgraph::addShell(bool walls[6]){
 	//traverse walls constructing one node per wall with appropiate fields
 	//after adding new shell, checking previous shell to set its node opening fields
+	
+
+	for(int i = 0;i<walls.size();i++){
+				
+
+
+	}
+
+
 }
 
 //findPath
