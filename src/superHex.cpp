@@ -70,6 +70,7 @@ SDL_Surface* loadSurface(char* path)
     return optimizedSurface;
 }
 
+// Generates the shell
 void Shell::genRandom(int difficulty){
 	int random_i;
 	int numWalls = 0;
@@ -104,6 +105,8 @@ void Shell::Draw(SDL_Renderer * gRenderer){
 	height = 86.6025404;
 
 	/* OLD CODE using basic line geometry
+	 * Keeping for "just in case" purposes
+	
 	for (double i = 0; i < 6; i++) {
 		if (walls[(int)i]) {
 			angle = 2*PI * i/6;
