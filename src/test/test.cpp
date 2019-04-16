@@ -143,6 +143,7 @@ int main(){
 	int difficulty = 1;
 	int counter = 1;
 
+	//Initialize three shells with varying sizes, all with difficulty  = 0
 	Shell shells[3];
 	shells[0].size = 100;
 	shells[1].size = 200;
@@ -260,18 +261,19 @@ int main(){
 		SDL_SetRenderDrawColor(gRenderer, 100, 0, 100, 255);
 		SDL_RenderClear(gRenderer);
 
-		int p_sector = (player.angle / (PI/3));
+		int p_sector = (player.angle / (PI/3));		//current sector of hexagon the player is located in
 
-		for (int i = 0; i < 3; i++) {
+		for (int i = 0; i < 3; i++) {				//decreases size of shells to animate them moving towards the center
 			shells[i].size -= 1;
-			if (shells[i].size <= 0) {
+			if (shells[i].size <= 0) {				//if shell reaches center, generate a new shell
 				shells[i].size = 300;
 				shells[i].genRandom(difficulty);
 				counter += 1;
 			}
 
-			if (abs(shells[i].size - 50) <= 10) {
+			if (abs(shells[i].size - 50) <= 10) {			//checks collision when the size of shell is close enough to the player's path radius
 				if (shells[i].walls[p_sector]) {
+					//quit = true;
 					printf("You ded m8\n\n");
 					shells[i].genRandom(0);
 				}
