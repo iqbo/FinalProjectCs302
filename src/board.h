@@ -48,7 +48,7 @@ class Shell {
 class Board {
 	public:
 		Board();			//begins game by generate window
-		void processEvents(bool AI);		//game loop, if AI = true, AI plays
+		bool processEvents(bool AI);		//game loop, if AI = true, AI plays
 		void render();						//renders game
 		void close();						//closes game
 		void restart();						//restarts game
@@ -71,6 +71,7 @@ class Board {
 		const int SCREEN_W = 400;
 		const int SCREEN_H = 400;
 		bool quit;
+		bool start;
 		bool AIenable;
 		SDL_Event e;
 };

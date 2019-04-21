@@ -48,6 +48,8 @@ void Shell::genRandom(int difficulty){
 
 	return;
 }
+
+//Draws a 1 px thick line from point p1 to point p2
 void Shell::drawLine(Point p1, Point p2, SDL_Renderer * gRenderer) {
 	SDL_SetRenderDrawColor(gRenderer, 150, 200, 250, 255);
 	SDL_RenderDrawLine(gRenderer, p1.x, p1.y, p2.x, p2.y);
@@ -55,6 +57,7 @@ void Shell::drawLine(Point p1, Point p2, SDL_Renderer * gRenderer) {
 	return;
 }
 
+//Draws one side of a hexagon as a trapezoid with 1px thick lines
 void Shell::drawHexSide(int width, int radius, double theta, SDL_Renderer * gRenderer) {
 	Point p1, p2, p3, p4;
 
@@ -78,6 +81,7 @@ void Shell::drawHexSide(int width, int radius, double theta, SDL_Renderer * gRen
 	return;
 }
 
+//Draws a hexagon shell based on the walls array
 void Shell::Draw(SDL_Renderer * gRenderer){
 	double angle;
 
@@ -92,13 +96,15 @@ void Shell::Draw(SDL_Renderer * gRenderer){
 }
 
 //Board Implementation
+
+//Initializes the game data SDL objects
 Board::Board(){
 	player = Player();
 	AIenable = false;	
 	quit = false;
-	shells[0].size = 100;
-	shells[1].size = 200;
-	shells[2].size = 300;
+	shells[0].size = 200;
+	shells[1].size = 300;
+	shells[2].size = 400;
 	shells[0].genRandom(0);
 	shells[1].genRandom(0);
 	shells[2].genRandom(0);
@@ -115,6 +121,7 @@ Board::Board(){
 	gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_PRESENTVSYNC);
 }
 
+//Contains the main loop for the game
 void Board::gameloop(){
 	while (not quit) {
 
@@ -129,10 +136,10 @@ void Board::gameloop(){
 
 		//Now handle player movement
 		if (player.movingLeft){
-			player.angle -= 0.05;
+			player.angle -= 0.05 *(difficulty/2.0);
 		}
 		if (player.movingRight){
-			player.angle += 0.05;
+			player.angle += 0.05 *(difficulty/2.0);
 		}
 
 		//Makes sure the player is within [0, 2PI]
@@ -144,10 +151,13 @@ void Board::gameloop(){
 
 		render();
 	}
+	
 	close();
 }
 
-void Board::processEvents(bool AI){
+
+//Handles event processing
+bool Board::processEvents(bool AI){
 
 		//get events (inputs, x button, etc)
 		while (SDL_PollEvent(&e) != 0){
@@ -185,13 +195,19 @@ void Board::processEvents(bool AI){
 						break;
 					case 13:
 						printf("Pressed enter\n");
+						start = true;
 						restart(); 
 						SDL_Delay(300);
 						quit = false;
+						return false;
+					case 'q':
+						printf("Quitting\n");
+						quit = true;
+						return false;
 				}
 			}
 		}
-
+		return true;
 }
 
 //Draws and animates board
@@ -202,7 +218,7 @@ void Board::render(){
 	int p_sector = (player.angle / (PI/3));		//current sector of hexagon the player is located in
 
 	for (int i = 0; i < 3; i++) {				//decreases size of shells to animate them moving towards the center
-		shells[i].size -= 1;
+		shells[i].size -= difficulty;
 		if (shells[i].size <= 0) {				//if shell reaches center, generate a new shell
 			shells[i].size = 300;
 			shells[i].genRandom(difficulty);
@@ -211,8 +227,10 @@ void Board::render(){
 
 		if (abs(shells[i].size - 50) <= 10) {			//checks collision when the size of shell is close enough to the player's path radius
 			if (shells[i].walls[p_sector]) {
-				//quit = true;
-				printf("You ded m8\n\n");
+				printf("You ded m8 \nPress enter to restart\nPress q to quit\n");
+				while(processEvents(false)){
+					continue;
+				}
 				shells[i].genRandom(0);
 			}
 		}
@@ -241,12 +259,12 @@ void Board::close(){
 }
 
 void Board::restart(){
-	difficulty = 0;
-	counter = 0;
+	difficulty = 1;
+	counter = 1;
 	
-	shells[0].size = 100;
-	shells[1].size = 200;
-	shells[2].size = 300;
+	shells[0].size = 200;
+	shells[1].size = 300;
+	shells[2].size = 400;
 	
 	shells[0].genRandom(0);
 	shells[1].genRandom(0);
