@@ -1,4 +1,4 @@
-#include <board.h>
+#include "board.h"
 
 //Point class
 Point::Point() {
@@ -17,14 +17,37 @@ Point::Point(int X, int Y) {
 
 //Player impltementation
 Player::Player(){
-	player.angle = 0;
-	player.movingRight = false;
-	player.movingLeft = false;
+	angle = 0;
+	movingRight = false;
+	movingLeft = false;
 
 	return;
 }
-//Shell implementation
 
+//Shell implementation
+void Shell::genRandom(int difficulty){
+	int random_i;
+	int numWalls = 0;
+
+	for (int i = 0; i < 6; i++){
+		random_i = rand()%2;
+		if (random_i){
+			walls[i] = 1;
+			numWalls += 1;
+		} else {
+			walls[i] = 0;
+		}
+		if (numWalls == difficulty){
+			if (i == 5) return;
+			for (int j = i+1; j < 6; j++){
+				walls[j] = 0;
+			}
+			return;
+		}
+	}
+
+	return;
+}
 void Shell::drawLine(Point p1, Point p2, SDL_Renderer * gRenderer) {
 	SDL_SetRenderDrawColor(gRenderer, 150, 200, 250, 255);
 	SDL_RenderDrawLine(gRenderer, p1.x, p1.y, p2.x, p2.y);
@@ -67,14 +90,15 @@ void Shell::Draw(SDL_Renderer * gRenderer){
 
 	return;
 }
+
 //Board Implementation
 Board::Board(){
-	//player
-	SCREEN_W = 400;
-	SCREEN_H = 400;
-	AI = false;	
+	player = Player();
+	AIenable = false;	
 	quit = false;
-
+	shells[0].size = 100;
+	shells[1].size = 200;
+	shells[2].size = 300;
 	shells[0].genRandom(0);
 	shells[1].genRandom(0);
 	shells[2].genRandom(0);
@@ -95,7 +119,7 @@ void Board::gameloop(){
 	while (not quit) {
 
 		//get events (inputs, x button, etc)
-		processEvents();
+		processEvents(false);
 
 		if (counter % 11 == 0 and difficulty < 4) {
 			difficulty += 1;
@@ -118,9 +142,9 @@ void Board::gameloop(){
 			player.angle = player.angle + 2*PI;
 		}
 
-		render(false);
-		close();
+		render();
 	}
+	close();
 }
 
 void Board::processEvents(bool AI){
@@ -158,6 +182,12 @@ void Board::processEvents(bool AI){
 					case 'e':
 						counter += 1;
 						printf("Pressed e\n");
+						break;
+					case 13:
+						printf("Pressed enter\n");
+						restart(); 
+						SDL_Delay(300);
+						quit = false;
 				}
 			}
 		}
@@ -200,7 +230,7 @@ void Board::render(){
 	//SDL_UpdateWindowSurface(gWindow);
 	SDL_RenderPresent(gRenderer);
 	//Waiting 16 milliseconds, i.e. 60 fps
-	//SDL_Delay(16);
+	SDL_Delay(16);
 }
 
 void Board::close(){
@@ -211,7 +241,24 @@ void Board::close(){
 }
 
 void Board::restart(){
-
+	difficulty = 0;
+	counter = 0;
+	
+	shells[0].size = 100;
+	shells[1].size = 200;
+	shells[2].size = 300;
+	
+	shells[0].genRandom(0);
+	shells[1].genRandom(0);
+	shells[2].genRandom(0);
+	
+	player.angle = 0;	
+	
+	SDL_SetRenderDrawColor(gRenderer, 100, 0, 100, 255);
+	SDL_RenderClear(gRenderer);
+	SDL_RenderPresent(gRenderer);
+	
+	//srand(time(NULL));
 }	
 
 
@@ -220,7 +267,8 @@ void Board::restart(){
 int main(){
 	srand(time(NULL));
 
-	Board myBoard();
+	Board myBoard = Board();
 	myBoard.gameloop();
 
+	return 0;
 }

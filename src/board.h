@@ -15,6 +15,15 @@ using namespace std;
 
 const double PI = M_PI;
 
+
+class Point {
+	public:
+		int x;
+		int y;
+		Point(int X, int Y);
+		Point();
+};
+
 class Player {
 	public:
 		Player();
@@ -35,13 +44,6 @@ class Shell {
 		void drawHexSide(int width, int radius, double theta,  SDL_Renderer * gRenderer);
 };
 
-class Point {
-	public:
-		int x;
-		int y;
-		Point(int X, int Y);
-		Point();
-};
 
 class Board {
 	public:
@@ -50,9 +52,10 @@ class Board {
 		void render();						//renders game
 		void close();						//closes game
 		void restart();						//restarts game
+		void gameloop();
 		//mode
 		int upDifficulty();
-		void Draw(SDL_Render * gRenderer);	
+		void Draw(SDL_Renderer * gRenderer);	
 		Player player;
 		Shell shells[3];
 
@@ -63,8 +66,11 @@ class Board {
 		//calls hexgraph->findpath
 		//accepts CLI for user or A controller player if enter
 		//upon death reset board & start game w enter or other keypress
-	private:
-		const int SCREEN_W;
-		const int SCREEN_H;
+		int difficulty;
+		int counter; 	
+		const int SCREEN_W = 400;
+		const int SCREEN_H = 400;
 		bool quit;
+		bool AIenable;
 		SDL_Event e;
+};
