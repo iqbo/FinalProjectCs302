@@ -41,7 +41,9 @@ class Shell {
 		double size;
 		void genRandom(int difficulty); //gonna get harder as game goes on
 		void drawLine(Point p1, Point p2, SDL_Renderer * gRenderer);
-		void drawHexSide(int width, int radius, double theta,  SDL_Renderer * gRenderer);
+		void drawHexSide(int width, int radius, double theta,  SDL_Renderer * gRenderer);	
+		const int SCREEN_W = 500;
+		const int SCREEN_H = 500;
 };
 
 
@@ -68,10 +70,11 @@ class Board {
 		//upon death reset board & start game w enter or other keypress
 		int difficulty;
 		int counter; 	
-		const int SCREEN_W = 400;
-		const int SCREEN_H = 400;
+		const int SCREEN_W = 500;
+		const int SCREEN_H = 500;
 		bool quit;
 		bool start;
 		bool AIenable;
 		SDL_Event e;
+		int shellcount;
 };

@@ -59,19 +59,21 @@ void Shell::drawLine(Point p1, Point p2, SDL_Renderer * gRenderer) {
 
 //Draws one side of a hexagon as a trapezoid with 1px thick lines
 void Shell::drawHexSide(int width, int radius, double theta, SDL_Renderer * gRenderer) {
+	int centerx = SCREEN_W / 2;
+	int centery = SCREEN_H / 2;
 	Point p1, p2, p3, p4;
 
-	p1.x = radius * cos(theta) + 200;
-	p1.y = radius * sin(theta) + 200;
+	p1.x = radius * cos(theta) + centerx;
+	p1.y = radius * sin(theta) + centery;
 
-	p2.x = radius * cos(theta + PI/3) + 200;
-	p2.y = radius * sin(theta + PI/3) + 200;
+	p2.x = radius * cos(theta + PI/3) + centerx;
+	p2.y = radius * sin(theta + PI/3) + centery;
 
-	p3.x = (radius + width) * cos(theta + PI/3) + 200;
-	p3.y = (radius + width) * sin(theta + PI/3) + 200;
+	p3.x = (radius + width) * cos(theta + PI/3) + centerx;
+	p3.y = (radius + width) * sin(theta + PI/3) + centery;
 
-	p4.x = (radius + width) * cos(theta) + 200;
-	p4.y = (radius + width) * sin(theta) + 200;
+	p4.x = (radius + width) * cos(theta) + centerx;
+	p4.y = (radius + width) * sin(theta) + centery;
 
 	drawLine(p1, p2, gRenderer);
 	drawLine(p2, p3, gRenderer);
@@ -102,15 +104,17 @@ Board::Board(){
 	player = Player();
 	AIenable = false;	
 	quit = false;
-	shells[0].size = 200;
-	shells[1].size = 300;
-	shells[2].size = 400;
-	shells[0].genRandom(0);
-	shells[1].genRandom(0);
-	shells[2].genRandom(0);
-
+	
 	difficulty = 1;
 	counter = 1;
+	shellcount = 0;
+
+	shells[0].size = 200;
+	shells[1].size = 325;
+	shells[2].size = 450;
+	shells[0].genRandom(difficulty);
+	shells[1].genRandom(difficulty);
+	shells[2].genRandom(difficulty);
 
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0){
 		printf("SDL couldn't initialize");
@@ -136,10 +140,10 @@ void Board::gameloop(){
 
 		//Now handle player movement
 		if (player.movingLeft){
-			player.angle -= 0.05 *(difficulty/2.0);
+			player.angle -= 0.1;
 		}
 		if (player.movingRight){
-			player.angle += 0.05 *(difficulty/2.0);
+			player.angle += 0.1;
 		}
 
 		//Makes sure the player is within [0, 2PI]
@@ -212,6 +216,8 @@ bool Board::processEvents(bool AI){
 
 //Draws and animates board
 void Board::render(){
+	int centerx = SCREEN_W / 2;
+	int centery = SCREEN_H / 2;
 	SDL_SetRenderDrawColor(gRenderer, 100, 0, 100, 255);
 	SDL_RenderClear(gRenderer);
 
@@ -220,13 +226,15 @@ void Board::render(){
 	for (int i = 0; i < 3; i++) {				//decreases size of shells to animate them moving towards the center
 		shells[i].size -= difficulty;
 		if (shells[i].size <= 0) {				//if shell reaches center, generate a new shell
-			shells[i].size = 300;
+			shells[i].size = 400;
 			shells[i].genRandom(difficulty);
 			counter += 1;
+			shellcount++;
 		}
 
 		if (abs(shells[i].size - 50) <= 10) {			//checks collision when the size of shell is close enough to the player's path radius
 			if (shells[i].walls[p_sector]) {
+				printf("You lasted %d shells\n", shellcount);
 				printf("You ded m8 \nPress enter to restart\nPress q to quit\n");
 				while(processEvents(false)){
 					continue;
@@ -240,7 +248,7 @@ void Board::render(){
 
 	//Draw the player to the screen
 	SDL_SetRenderDrawColor(gRenderer, 200, 50, 50, 255);
-	SDL_Rect fillRect = {50 * cos(player.angle) + 200 - 10, 50 * sin(player.angle) + 200 - 10, 20, 20};
+	SDL_Rect fillRect = {50 * cos(player.angle) + centerx - 10, 50 * sin(player.angle) + centery - 10, 20, 20};
 
 	SDL_RenderFillRect(gRenderer, &fillRect);
 
@@ -261,10 +269,11 @@ void Board::close(){
 void Board::restart(){
 	difficulty = 1;
 	counter = 1;
-	
+	shellcount = 0;
+
 	shells[0].size = 200;
-	shells[1].size = 300;
-	shells[2].size = 400;
+	shells[1].size = 325;
+	shells[2].size = 450;
 	
 	shells[0].genRandom(0);
 	shells[1].genRandom(0);
