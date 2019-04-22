@@ -15,11 +15,78 @@ Point::Point(int X, int Y) {
 	return;
 }
 
+const int SCREEN_W = 500;
+const int SCREEN_H = 500;
+
+//Adds two points
+Point Point::operator +(class Point p) {
+	Point rv;
+	rv.x = x + p.x;
+	rv.y = y + p.y;
+
+	return rv;
+}
+
+Point Point::rotate(double angle) {
+	Point rv;
+	double radius;
+	double curAngle;
+
+	radius = sqrt((double)x*x + (double)y*y);
+	curAngle = atan((double)y / (double)x);
+
+	if (x >= 0 and y < 0) {
+		curAngle = -curAngle;
+	} else if (x < 0 and y >= 0) {
+		curAngle = PI - curAngle;
+	} else if (x < 0 and y < 0) {
+		curAngle = PI + curAngle;
+	}
+
+	rv.x = radius*cos(angle + curAngle);
+	rv.y = radius*sin(angle + curAngle);
+
+	return rv;
+}
+
+//Draws a 1 px thick line from point p1 to point p2
+void drawLine(Point p1, Point p2, SDL_Renderer * gRenderer) {
+	SDL_SetRenderDrawColor(gRenderer, 150, 200, 250, 255);
+	SDL_RenderDrawLine(gRenderer, p1.x, p1.y, p2.x, p2.y);
+
+	return;
+}
+
 //Player impltementation
 Player::Player(){
 	angle = 0;
 	movingRight = false;
 	movingLeft = false;
+
+	pts.resize(5);
+	pts[0] = Point(0, 8);
+	pts[1] = Point(3, 0);
+	pts[2] = Point(0, 3);
+	pts[3] = Point(-4, 0);
+	pts[4] = Point(0, 8);
+
+	return;
+}
+void Player::Draw(SDL_Renderer * gRenderer) {
+	Point p1, p2;
+
+	int centerx, centery;
+	centerx = SCREEN_W/2 + 50*cos(angle);
+	centery = SCREEN_H/2 + 50*sin(angle);
+
+	Point center(centerx, centery);
+
+	for (int i = 0; i < pts.size() - 1; i++) {
+		p1 = pts[i].rotate(angle - PI/2) + center;
+		p2 = pts[i+1].rotate(angle - PI/2) + center;
+
+		drawLine(p1, p2, gRenderer);
+	}
 
 	return;
 }
@@ -48,15 +115,6 @@ void Shell::genRandom(int difficulty){
 
 	return;
 }
-
-//Draws a 1 px thick line from point p1 to point p2
-void Shell::drawLine(Point p1, Point p2, SDL_Renderer * gRenderer) {
-	SDL_SetRenderDrawColor(gRenderer, 150, 200, 250, 255);
-	SDL_RenderDrawLine(gRenderer, p1.x, p1.y, p2.x, p2.y);
-
-	return;
-}
-
 //Draws one side of a hexagon as a trapezoid with 1px thick lines
 void Shell::drawHexSide(int width, int radius, double theta, SDL_Renderer * gRenderer) {
 	int centerx = SCREEN_W / 2;
@@ -173,13 +231,13 @@ bool Board::processEvents(bool AI){
 					case 97: //A
 						if (not player.movingLeft) {
 							player.movingLeft = true;
-							printf("Starting Left\n");
+	//						printf("Starting Left\n");
 						}
 						break;
 					case 100: //D
 						if (not player.movingRight) {
 							player.movingRight = true;
-							printf("Starting Right\n");
+	//						printf("Starting Right\n");
 						}
 						break;
 				}
@@ -187,16 +245,16 @@ bool Board::processEvents(bool AI){
 				switch (e.key.keysym.sym){
 					case 97:
 						player.movingLeft = false;
-						printf("Ending Left\n");
+	//					printf("Ending Left\n");
 						break;
 					case 100:
 						player.movingRight = false;
-						printf("Ending Right\n");
+	//					printf("Ending Right\n");
 						break;
-					case 'e':
-						counter += 1;
-						printf("Pressed e\n");
-						break;
+	//				case 'e':
+	//					counter += 1;
+	//					printf("Pressed e\n");
+	//					break;
 					case 13:
 						printf("Pressed enter\n");
 						start = true;
@@ -246,15 +304,22 @@ void Board::render(){
 		shells[i].Draw(gRenderer);
 	}
 
-	//Draw the player to the screen
-	SDL_SetRenderDrawColor(gRenderer, 200, 50, 50, 255);
-	SDL_Rect fillRect = {50 * cos(player.angle) + centerx - 10, 50 * sin(player.angle) + centery - 10, 20, 20};
+	
+	//OLD CODE to draw player
+	//SDL_SetRenderDrawColor(gRenderer, 200, 50, 50, 255);
+	//SDL_Rect fillRect = {50 * cos(player.angle) + centerx - 10, 50 * sin(player.angle) + centery - 10, 20, 20};
+	//SDL_RenderFillRect(gRenderer, &fillRect);
 
-	SDL_RenderFillRect(gRenderer, &fillRect);
+	//Draw the player to the screen
+	player.Draw(gRenderer);
+	
+	//Player score counter
+	
 
 	//Update the window when all done
 	//SDL_UpdateWindowSurface(gWindow);
 	SDL_RenderPresent(gRenderer);
+	
 	//Waiting 16 milliseconds, i.e. 60 fps
 	SDL_Delay(16);
 }

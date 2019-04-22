@@ -22,6 +22,8 @@ class Point {
 		int y;
 		Point(int X, int Y);
 		Point();
+		Point operator + (class Point p);
+		Point rotate(double angle);
 };
 
 class Player {
@@ -30,8 +32,12 @@ class Player {
 		bool movingLeft;
 		bool movingRight;
 
+		void Draw(SDL_Renderer * gRenderer);
+
 		double angle;
 		int radius;
+	private:
+		vector <Point> pts;
 };
 
 class Shell {
@@ -40,10 +46,8 @@ class Shell {
 		void Draw(SDL_Renderer * gRenderer);
 		double size;
 		void genRandom(int difficulty); //gonna get harder as game goes on
-		void drawLine(Point p1, Point p2, SDL_Renderer * gRenderer);
+//		void drawLine(Point p1, Point p2, SDL_Renderer * gRenderer);
 		void drawHexSide(int width, int radius, double theta,  SDL_Renderer * gRenderer);	
-		const int SCREEN_W = 500;
-		const int SCREEN_H = 500;
 };
 
 
