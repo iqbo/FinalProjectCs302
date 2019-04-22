@@ -82,12 +82,12 @@ void Hexgraph::addShell(bool *walls) { //nodes[rank] = wall
 		if (walls[i] == true)
 		{
 			shell->wall = 1;
-			shell->number = i;
+			shell->number = i + 1;
 		}
 		else
 		{
 			shell->wall = 0;
-			shell->number = i;
+			shell->number = i + 1;
 		}
 		wallss.push_back(shell);
 	}
