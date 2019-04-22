@@ -10,3 +10,6 @@ Super Hexagon
 Output of hexrender:
 
 <img src="https://i.imgur.com/kzaZW9X.jpg"></img>
+
+## To compile main
+g++ -o main main.cpp -lSDL2
