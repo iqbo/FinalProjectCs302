@@ -13,3 +13,6 @@ Output of hexrender:
 
 ## To compile main
 g++ -o main main.cpp -lSDL2
+
+Now with more color!
+<img src="images/superHexDemo.gif"></img>
