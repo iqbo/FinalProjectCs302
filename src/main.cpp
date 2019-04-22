@@ -8,6 +8,24 @@ Point::Point() {
 	return;
 }
 
+vector <char> color (int hex) {
+	int r, g, b;
+	r = (hex >> 16) & 0xff;
+	g = (hex >> 8) & 0xff;
+	b = (hex) & 0xff;
+
+	vector <char> color;
+	color.push_back(r);
+	color.push_back(g);
+	color.push_back(b);
+
+	return color;
+}
+
+vector <char> player_color	= color(0xee5d6c);
+vector <char> hex_color		= color(0xeeaf61);
+vector <char> bg_color		= color(0x000000);
+
 Point::Point(int X, int Y) {
 	x = X;
 	y = Y;
@@ -50,8 +68,8 @@ Point Point::rotate(double angle) {
 }
 
 //Draws a 1 px thick line from point p1 to point p2
-void drawLine(Point p1, Point p2, SDL_Renderer * gRenderer) {
-	SDL_SetRenderDrawColor(gRenderer, 150, 200, 250, 255);
+void drawLine(Point p1, Point p2, SDL_Renderer * gRenderer, vector <char> & color) {
+	SDL_SetRenderDrawColor(gRenderer, color[0], color[1], color[2], 255);
 	SDL_RenderDrawLine(gRenderer, p1.x, p1.y, p2.x, p2.y);
 
 	return;
@@ -64,11 +82,11 @@ Player::Player(){
 	movingLeft = false;
 
 	pts.resize(5);
-	pts[0] = Point(0, 8);
-	pts[1] = Point(3, 0);
+	pts[0] = Point(0, 10);
+	pts[1] = Point(5, 0);
 	pts[2] = Point(0, 3);
-	pts[3] = Point(-4, 0);
-	pts[4] = Point(0, 8);
+	pts[3] = Point(-5, 0);
+	pts[4] = Point(0, 10);
 
 	return;
 }
@@ -85,7 +103,7 @@ void Player::Draw(SDL_Renderer * gRenderer) {
 		p1 = pts[i].rotate(angle - PI/2) + center;
 		p2 = pts[i+1].rotate(angle - PI/2) + center;
 
-		drawLine(p1, p2, gRenderer);
+		drawLine(p1, p2, gRenderer, player_color);
 	}
 
 	return;
@@ -133,10 +151,10 @@ void Shell::drawHexSide(int width, int radius, double theta, SDL_Renderer * gRen
 	p4.x = (radius + width) * cos(theta) + centerx;
 	p4.y = (radius + width) * sin(theta) + centery;
 
-	drawLine(p1, p2, gRenderer);
-	drawLine(p2, p3, gRenderer);
-	drawLine(p3, p4, gRenderer);
-	drawLine(p4, p1, gRenderer);
+	drawLine(p1, p2, gRenderer, hex_color);
+	drawLine(p2, p3, gRenderer, hex_color);
+	drawLine(p3, p4, gRenderer, hex_color);
+	drawLine(p4, p1, gRenderer, hex_color);
 
 	return;
 }
@@ -276,7 +294,7 @@ bool Board::processEvents(bool AI){
 void Board::render(){
 	int centerx = SCREEN_W / 2;
 	int centery = SCREEN_H / 2;
-	SDL_SetRenderDrawColor(gRenderer, 100, 0, 100, 255);
+	SDL_SetRenderDrawColor(gRenderer, bg_color[0], bg_color[1], bg_color[2], 255);
 	SDL_RenderClear(gRenderer);
 
 	int p_sector = (player.angle / (PI/3));		//current sector of hexagon the player is located in
@@ -346,7 +364,7 @@ void Board::restart(){
 	
 	player.angle = 0;	
 	
-	SDL_SetRenderDrawColor(gRenderer, 100, 0, 100, 255);
+	SDL_SetRenderDrawColor(gRenderer, bg_color[0], bg_color[1], bg_color[2], 255);
 	SDL_RenderClear(gRenderer);
 	SDL_RenderPresent(gRenderer);
 	
