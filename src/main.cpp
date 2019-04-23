@@ -1,4 +1,5 @@
 #include "board.h"
+#include <set>
 
 //Point class
 Point::Point() {
@@ -35,6 +36,8 @@ Point::Point(int X, int Y) {
 
 const int SCREEN_W = 500;
 const int SCREEN_H = 500;
+
+set <int> steps; //Points that the game gets harder
 
 //Adds two points
 Point Point::operator +(class Point p) {
@@ -114,21 +117,15 @@ void Shell::genRandom(int difficulty){
 	int random_i;
 	int numWalls = 0;
 
-	for (int i = 0; i < 6; i++){
-		random_i = rand()%2;
-		if (random_i){
-			walls[i] = 1;
-			numWalls += 1;
-		} else {
-			walls[i] = 0;
-		}
-		if (numWalls == difficulty){
-			if (i == 5) return;
-			for (int j = i+1; j < 6; j++){
-				walls[j] = 0;
-			}
-			return;
-		}
+	for (int i = 0; i < 6; i++) {
+		walls[i] = 0;
+	}
+
+	while (numWalls < difficulty) {
+		random_i = rand()%6;
+
+		walls[random_i] = 1;
+		numWalls += 1;
 	}
 
 	return;
@@ -180,7 +177,7 @@ Board::Board(){
 	player = Player();
 	AIenable = false;	
 	quit = false;
-	
+
 	difficulty = 1;
 	counter = 1;
 	shellcount = 0;
@@ -201,6 +198,7 @@ Board::Board(){
 	gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_PRESENTVSYNC);
 }
 
+
 //Contains the main loop for the game
 void Board::gameloop(){
 	while (not quit) {
@@ -208,7 +206,7 @@ void Board::gameloop(){
 		//get events (inputs, x button, etc)
 		processEvents(false);
 
-		if (counter % 11 == 0 and difficulty < 4) {
+		if (steps.find(counter) != steps.end()) {
 			difficulty += 1;
 			counter += 1;
 			printf("Difficulty up to %d\n", difficulty);
@@ -231,7 +229,7 @@ void Board::gameloop(){
 
 		render();
 	}
-	
+
 	close();
 }
 
@@ -239,55 +237,70 @@ void Board::gameloop(){
 //Handles event processing
 bool Board::processEvents(bool AI){
 
-		//get events (inputs, x button, etc)
-		while (SDL_PollEvent(&e) != 0){
-			if (e.type == SDL_QUIT){
-				quit = true;
+	//get events (inputs, x button, etc)
+	while (SDL_PollEvent(&e) != 0){
+		if (e.type == SDL_QUIT){
+			quit = true;
+		}
+		if (e.type == SDL_KEYDOWN){
+			switch (e.key.keysym.sym){
+				case 97: //A
+					if (not player.movingLeft) {
+						player.movingLeft = true;
+						//						printf("Starting Left\n");
+					}
+					break;
+				case 100: //D
+					if (not player.movingRight) {
+						player.movingRight = true;
+						//						printf("Starting Right\n");
+					}
+					break;
 			}
-			if (e.type == SDL_KEYDOWN){
-				switch (e.key.keysym.sym){
-					case 97: //A
-						if (not player.movingLeft) {
-							player.movingLeft = true;
-	//						printf("Starting Left\n");
-						}
-						break;
-					case 100: //D
-						if (not player.movingRight) {
-							player.movingRight = true;
-	//						printf("Starting Right\n");
-						}
-						break;
-				}
-			} else if (e.type == SDL_KEYUP){
-				switch (e.key.keysym.sym){
-					case 97:
-						player.movingLeft = false;
-	//					printf("Ending Left\n");
-						break;
-					case 100:
-						player.movingRight = false;
-	//					printf("Ending Right\n");
-						break;
-	//				case 'e':
-	//					counter += 1;
-	//					printf("Pressed e\n");
-	//					break;
-					case 13:
-						printf("Pressed enter\n");
-						start = true;
-						restart(); 
-						SDL_Delay(300);
-						quit = false;
-						return false;
-					case 'q':
-						printf("Quitting\n");
-						quit = true;
-						return false;
-				}
+		} else if (e.type == SDL_KEYUP){
+			switch (e.key.keysym.sym){
+				case 97:
+					player.movingLeft = false;
+					//					printf("Ending Left\n");
+					break;
+				case 100:
+					player.movingRight = false;
+					//					printf("Ending Right\n");
+					break;
+					//				case 'e':
+					//					counter += 1;
+					//					printf("Pressed e\n");
+					//					break;
+				case 13:
+					printf("Pressed enter\n");
+					start = true;
+					restart(); 
+					SDL_Delay(300);
+					quit = false;
+					return false;
+				case 'q':
+					printf("Quitting\n");
+					quit = true;
+					return false;
 			}
 		}
-		return true;
+	}
+	return true;
+}
+
+double dec(int difficulty) {
+	switch (difficulty){
+		case 1:
+			return 1.5;
+		case 2:
+			return 2;
+		case 3:
+			return 2.5;
+		case 4:
+			return 3.5;
+		case 5:
+			return 5;
+	}
 }
 
 //Draws and animates board
@@ -300,7 +313,7 @@ void Board::render(){
 	int p_sector = (player.angle / (PI/3));		//current sector of hexagon the player is located in
 
 	for (int i = 0; i < 3; i++) {				//decreases size of shells to animate them moving towards the center
-		shells[i].size -= difficulty;
+		shells[i].size -= dec(difficulty);
 		if (shells[i].size <= 0) {				//if shell reaches center, generate a new shell
 			shells[i].size = 400;
 			shells[i].genRandom(difficulty);
@@ -322,7 +335,7 @@ void Board::render(){
 		shells[i].Draw(gRenderer);
 	}
 
-	
+
 	//OLD CODE to draw player
 	//SDL_SetRenderDrawColor(gRenderer, 200, 50, 50, 255);
 	//SDL_Rect fillRect = {50 * cos(player.angle) + centerx - 10, 50 * sin(player.angle) + centery - 10, 20, 20};
@@ -330,14 +343,14 @@ void Board::render(){
 
 	//Draw the player to the screen
 	player.Draw(gRenderer);
-	
+
 	//Player score counter
-	
+
 
 	//Update the window when all done
 	//SDL_UpdateWindowSurface(gWindow);
 	SDL_RenderPresent(gRenderer);
-	
+
 	//Waiting 16 milliseconds, i.e. 60 fps
 	SDL_Delay(16);
 }
@@ -357,17 +370,17 @@ void Board::restart(){
 	shells[0].size = 200;
 	shells[1].size = 325;
 	shells[2].size = 450;
-	
+
 	shells[0].genRandom(0);
 	shells[1].genRandom(0);
 	shells[2].genRandom(0);
-	
+
 	player.angle = 0;	
-	
+
 	SDL_SetRenderDrawColor(gRenderer, bg_color[0], bg_color[1], bg_color[2], 255);
 	SDL_RenderClear(gRenderer);
 	SDL_RenderPresent(gRenderer);
-	
+
 	//srand(time(NULL));
 }	
 
@@ -375,6 +388,11 @@ void Board::restart(){
 //
 //Main
 int main(){
+	steps.insert(5);
+	steps.insert(15);
+	steps.insert(35);
+	steps.insert(65);
+	steps.insert(95);
 	srand(time(NULL));
 
 	Board myBoard = Board();
