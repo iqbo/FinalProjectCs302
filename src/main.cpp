@@ -400,6 +400,8 @@ void Board::restart(){
 //
 //Main
 int main(){
+	printf("You are a humble triangle trapped in a world dominated by hexagons.\n You must find your way out. Avoid the hexagon walls, using A to move left and D to move right.");
+	printf("Press enter to begin your journey again.\n Press q to give up on your journey. \n");
 	steps.insert(5);
 	steps.insert(15);
 	steps.insert(35);
