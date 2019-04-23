@@ -67,6 +67,7 @@ void Hexgraph::addShell(bool *walls) { //nodes[rank] = wall
 			shell->wall = 0;
 			shell->number = i + 1;
 		}
+		shell->rank = maxRank-1;
 		wallss.push_back(shell);
 	}
  
@@ -103,11 +104,56 @@ void Hexgraph::addShell(bool *walls) { //nodes[rank] = wall
 //rules: every node has left and ride field
 //		 if a node has an opening filed it connects to a higher ranking node
 
-// Probably BFS
-int Hexgraph::findPath() {
+// Standard old BFS
+int Hexgraph::findPath(int playerPos) {
+	//Set all backedges to null and visited to false
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 6; j++) {
+			nodes[i][j]->backedge = NULL;
+			nodes[i][j]->visited = false;
+			printf("is a node: %d\n", nodes[i][j]->rank);
+		}
+	}
+
+	queue <node*> q;
+	q.push(nodes[0][playerPos]);
 	
+	while (!q.empty()) {
+		node * n = q.front();
+		q.pop();
+
+		if (n->rank == 2) {
+			//print backedges
+			for (node* N = n; N != NULL; N = N->backedge) {
+				printf("%d %d\n", N->number, N->rank);
+			}
+			return 1;
+		}
+
+		if (! n->visited) {
+			if (not n->left->visited) {
+				q.push(n->left);
+				n->left->backedge = n;
+			}
+			if (not n->right->visited) {
+				q.push(n->right);
+				n->right->backedge = n;
+			}
+			if (n->opening != NULL) {
+				if (not n->opening->visited) {
+					q.push(n->opening);
+					n->opening->backedge = n;
+				}
+			}
+		}
+		n->visited = true;
+	}
+
+	printf("No path found\n");
 	return 0;
 }
+
+
 
 int main(){
 	bool wall1[6] = {0, 0, 0, 0, 0, 0};
@@ -115,6 +161,9 @@ int main(){
 	bool wall3[6] = {1, 0, 1, 0, 1, 0};
 
 	Hexgraph mygraph = Hexgraph(wall1, wall2, wall3);
-	
+
+	mygraph.findPath(0);
+
 	mygraph.print();
 }
+
