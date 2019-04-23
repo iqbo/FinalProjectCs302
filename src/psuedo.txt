@@ -1,0 +1,18 @@
+player interpret path method. 
+
+//Follows backedges from a given node to the central point
+//Interprets the backedge to a player move and adds it to the stack
+//
+Player::interpath(node * last){
+	node * n = last;
+	double move = 0;		//change in angular position of player 
+	while(n != NULL){		//follow all backedges
+		//Apply logic to determine move
+		
+		//Calculate change in angular position that represents this move
+		
+		//Add the move to the stack
+		
+		//Follow n's backedge
+	}
+}
