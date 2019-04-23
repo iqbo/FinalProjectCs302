@@ -5,7 +5,7 @@ void Hexgraph::print(){
 		cout << "Rank: " << i << endl;
 		for(int j = 0; j < nodes[i].size(); j++){
 			cout << "	Node: " << nodes[i][j]->number << " Wall: " << nodes[i][j]->wall << " Left: " << nodes[i][j]->left->number << " Right: " << nodes[i][j]->right->number;
-			if(nodes[i][j]->opening == NULL) cout << "	Opening: Null" << endl;
+			if(nodes[i][j]->opening == NULL) cout << " Opening: Null" << endl;
 			else cout << " Opening: " << nodes[i][j]->opening->number << endl;
 		}
 	}
