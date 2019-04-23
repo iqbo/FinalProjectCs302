@@ -38,6 +38,7 @@ const int SCREEN_W = 500;
 const int SCREEN_H = 500;
 
 set <int> steps; //Points that the game gets harder
+bool AI_enable = false;
 
 //Adds two points
 Point Point::operator +(class Point p) {
@@ -93,6 +94,7 @@ Player::Player(){
 
 	return;
 }
+
 void Player::Draw(SDL_Renderer * gRenderer) {
 	Point p1, p2;
 
@@ -130,6 +132,7 @@ void Shell::genRandom(int difficulty){
 
 	return;
 }
+
 //Draws one side of a hexagon as a trapezoid with 1px thick lines
 void Shell::drawHexSide(int width, int radius, double theta, SDL_Renderer * gRenderer) {
 	int centerx = SCREEN_W / 2;
@@ -175,7 +178,7 @@ void Shell::Draw(SDL_Renderer * gRenderer){
 //Initializes the game data SDL objects
 Board::Board(){
 	player = Player();
-	AIenable = false;	
+	AI_enable = false;	
 	quit = false;
 
 	difficulty = 1;
@@ -244,39 +247,48 @@ bool Board::processEvents(bool AI){
 		}
 		if (e.type == SDL_KEYDOWN){
 			switch (e.key.keysym.sym){
-				case 97: //A
-					if (not player.movingLeft) {
-						player.movingLeft = true;
-						//						printf("Starting Left\n");
+				case 'a': //A
+					if (!AI_enable) {
+						if (not player.movingLeft) {
+							player.movingLeft = true;
+						}
 					}
 					break;
-				case 100: //D
-					if (not player.movingRight) {
-						player.movingRight = true;
-						//						printf("Starting Right\n");
+				case 'd': //D
+					if (!AI_enable) {
+						if (not player.movingRight) {
+							player.movingRight = true;
+						}
 					}
 					break;
 			}
 		} else if (e.type == SDL_KEYUP){
 			switch (e.key.keysym.sym){
-				case 97:
-					player.movingLeft = false;
-					//					printf("Ending Left\n");
+				case 'a':
+					if (!AI_enable) {
+						player.movingLeft = false;
+					}
 					break;
-				case 100:
-					player.movingRight = false;
-					//					printf("Ending Right\n");
+				case 'd':
+					if (!AI_enable) {
+						player.movingRight = false;
+					}
 					break;
-					//				case 'e':
-					//					counter += 1;
-					//					printf("Pressed e\n");
-					//					break;
 				case 13:
 					printf("Pressed enter\n");
 					start = true;
 					restart(); 
 					SDL_Delay(300);
 					quit = false;
+					AI_enable = false;
+					return false;
+				case 'x':
+					printf("Enabling AI...\n");
+					start = true;
+					restart();
+					SDL_Delay(300);
+					quit = false;
+					AI_enable = true;
 					return false;
 				case 'q':
 					printf("Quitting\n");
