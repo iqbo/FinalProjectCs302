@@ -1,3 +1,5 @@
+main:	src/main.cpp
+	g++ -g -std=c++11 src/main.cpp -o superHex2 -lSDL2
 superHex: src/superHex.cpp
 	g++ -g -std=c++11 src/superHex.cpp -o superHex -lSDL2 -lSDL2_image
 sdl_example: src/sdl_example.cpp
