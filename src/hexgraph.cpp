@@ -133,16 +133,19 @@ int Hexgraph::findPath(int playerPos) {
 		if (! n->visited) {
 			if (not n->left->visited) {
 				q.push(n->left);
-				n->left->backedge = n;
+				if (n->left->backedge == NULL)
+					n->left->backedge = n;
 			}
 			if (not n->right->visited) {
 				q.push(n->right);
-				n->right->backedge = n;
+				if (n->right->backedge == NULL)
+					n->right->backedge = n;
 			}
 			if (n->opening != NULL) {
 				if (not n->opening->visited) {
 					q.push(n->opening);
-					n->opening->backedge = n;
+					if (n->opening->backedge == NULL)
+						n->opening->backedge = n;
 				}
 			}
 		}
