@@ -1,5 +1,6 @@
 #include "board.h"
 #include <set>
+#include <stack>
 
 //Point class
 Point::Point() {
@@ -79,6 +80,7 @@ void drawLine(Point p1, Point p2, SDL_Renderer * gRenderer, vector <char> & colo
 	return;
 }
 
+
 //Player impltementation
 Player::Player(){
 	angle = 0;
@@ -94,6 +96,32 @@ Player::Player(){
 
 	return;
 }
+
+
+//player interpret path method. 
+
+//Follows backedges from a given node to the central point
+//Interprets the backedge to a player move and adds it to the stack
+//
+Player::interpath(node * last){
+
+	stack<double> moveStack;
+
+	node * n = last;
+	double move = 0;		//change in angular position of player 
+	while(n != NULL){		//follow all backedges
+		//Apply logic to determine move
+		
+		//Calculate change in angular position that represents this move
+		
+		//Add the move to the stack
+		moveStack.push();
+
+		//Follow n's backedge
+	}
+}
+
+
 
 void Player::Draw(SDL_Renderer * gRenderer) {
 	Point p1, p2;
