@@ -1,4 +1,5 @@
 #include "hexgraph.h"
+#include <map>
 
 void Hexgraph::print(){
 	for(int i = 0; i < nodes.size(); i++){
@@ -57,16 +58,17 @@ void Hexgraph::addShell(bool *walls) { //nodes[rank] = wall
 	for (unsigned int i = 0; i < 6; i++)
 	{
 		node* shell = new node;
+		shell->number = i;
+		
 		if (walls[i] == true)
 		{
 			shell->wall = 1;
-			shell->number = i + 1;
 		}
 		else
 		{
 			shell->wall = 0;
-			shell->number = i + 1;
 		}
+
 		shell->rank = maxRank-1;
 		wallss.push_back(shell);
 	}
@@ -100,12 +102,13 @@ void Hexgraph::addShell(bool *walls) { //nodes[rank] = wall
 
 
 //findPath
-//searchs for a path from node[0][0] to highest ranking node
+//searchs for a path from node[0][playerPos] to highest ranking node
 //rules: every node has left and ride field
 //		 if a node has an opening filed it connects to a higher ranking node
 
-// Standard old BFS
+// Standard old BFS (kind of)
 int Hexgraph::findPath(int playerPos) {
+	printf("playerPos: %d\n", playerPos);
 	//Set all backedges to null and visited to false
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 6; j++) {
@@ -115,49 +118,57 @@ int Hexgraph::findPath(int playerPos) {
 		}
 	}
 
-	queue <node*> q;
-	q.push(nodes[0][playerPos]);
-	
+	//queue <node*> q;
+	//q.push(nodes[0][playerPos])
+
+	multimap <int, node*> q;
+	q.insert(make_pair(3, nodes[0][playerPos%6]));
+	multimap <int, node*>::iterator top;
+
+
 	while (!q.empty()) {
-		node * n = q.front();
-		q.pop();
+		top = q.begin();
+		
+		node * n = top->second;
+		q.erase(top);
 
 		if (n->rank == 2) {
 			//print backedges
 			for (node* N = n; N != NULL; N = N->backedge) {
 				printf("%d %d\n", N->number, N->rank);
+				if (N->rank == 0) return N->number;
 			}
-			return 1;
+			//return 1;
 		}
 
 		if (! n->visited) {
-			if (not n->left->visited) {
-				q.push(n->left);
+//			if (not n->left->visited) {
+				q.insert(make_pair(3 -n->rank, n->left));
 				if (n->left->backedge == NULL)
 					n->left->backedge = n;
-			}
-			if (not n->right->visited) {
-				q.push(n->right);
+//			}
+//			if (not n->right->visited) {
+				q.insert(make_pair(3 -n->rank, n->right));
 				if (n->right->backedge == NULL)
 					n->right->backedge = n;
-			}
+//			}
 			if (n->opening != NULL) {
-				if (not n->opening->visited) {
-					q.push(n->opening);
+//				if (not n->opening->visited) {
+					q.insert(make_pair(3 -n->opening->rank, n->opening));
 					if (n->opening->backedge == NULL)
 						n->opening->backedge = n;
-				}
+//				}
 			}
 		}
 		n->visited = true;
 	}
 
 	printf("No path found\n");
-	return 0;
+	return -1;
 }
 
 
-
+/*
 int main(){
 	bool wall1[6] = {0, 0, 0, 0, 0, 0};
 	bool wall2[6] = {0, 1, 0, 1, 0, 1};
@@ -169,4 +180,4 @@ int main(){
 
 	mygraph.print();
 }
-
+*/

@@ -1,3 +1,4 @@
+#include "hexgraph.h"
 #include "board.h"
 #include <set>
 #include <stack>
@@ -103,8 +104,10 @@ Player::Player(){
 //Follows backedges from a given node to the central point
 //Interprets the backedge to a player move and adds it to the stack
 //
-Player::interpath(node * last){
+void Player::interpath(int target){
 
+	//TAKING OUT FOR NOW TO GET IT TO COMPILE
+	/*
 	//holds the moves
 	stack<double> moveStack;
 
@@ -122,6 +125,7 @@ Player::interpath(node * last){
 
 		//Follow n's backedge
 	}
+	*/
 }
 
 
@@ -346,6 +350,8 @@ double dec(int difficulty) {
 	}
 }
 
+int target;
+
 //Draws and animates board
 void Board::render(){
 	int centerx = SCREEN_W / 2;
@@ -357,11 +363,14 @@ void Board::render(){
 
 	for (int i = 0; i < 3; i++) {				//decreases size of shells to animate them moving towards the center
 		shells[i].size -= dec(difficulty);
-		if (shells[i].size <= 0) {				//if shell reaches center, generate a new shell
+		if (shells[i].size <= 0) {				//if shell reaches center, generate a new shell and hexgraph
 			shells[i].size = 400;
 			shells[i].genRandom(difficulty);
 			counter += 1;
 			shellcount++;
+
+			Hexgraph hg = Hexgraph(shells[0].walls, shells[1].walls, shells[2].walls);
+			target = hg.findPath(player.angle / (PI/3));
 		}
 
 		if (abs(shells[i].size - 50) <= 10) {			//checks collision when the size of shell is close enough to the player's path radius
@@ -377,7 +386,47 @@ void Board::render(){
 
 		shells[i].Draw(gRenderer);
 	}
+	
 
+
+	//I know it's in the wrong place, but that can be changed later
+	//Here's the AI code
+
+
+	if (AI_enable) {
+
+		//A bit of error checking
+		if (player.angle < 0) player.angle += 2*PI;
+		if (player.angle > 2*PI) player.angle -= 2*PI;
+
+		//Target angle that the AI tries to get to (a little broken at the moment)
+		double t_angle = 2*PI - target * PI/3;
+
+		//More error checking
+		if (target == -1) {
+			t_angle = player.angle;
+		} else {
+			t_angle += PI/6;
+			if (t_angle > 2*PI) t_angle -= 2*PI;
+		}
+
+		t_angle -= PI/3;
+		if (t_angle < 0) t_angle += 2*PI;
+
+		//The part that does the work
+		if (abs(t_angle - player.angle) > 0.3) {
+			double difference = t_angle - player.angle;
+			if (difference >= 0 and difference <= PI) {
+				player.angle -= 0.1;
+				//player.angle = t_angle;
+			} else {
+				player.angle += 0.1;
+				//player.angle = t_angle;
+			}
+		}
+
+		printf("target: %10d t_angle: %f\n", target, t_angle);
+	}
 
 	//OLD CODE to draw player
 	//SDL_SetRenderDrawColor(gRenderer, 200, 50, 50, 255);
@@ -432,7 +481,9 @@ void Board::restart(){
 //Main
 int main(){
 	printf("You are a humble triangle trapped in a world dominated by hexagons.\n You must find your way out. Avoid the hexagon walls, using A to move left and D to move right.");
+
 	printf("Press enter to begin your journey again.\n Press q to give up on your journey. \n");
+
 	steps.insert(5);
 	steps.insert(15);
 	steps.insert(35);

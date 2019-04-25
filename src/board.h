@@ -33,6 +33,8 @@ class Player {
 
 		void Draw(SDL_Renderer * gRenderer);
 
+		void interpath(int target);
+
 		double angle;
 		int radius;
 	private:
