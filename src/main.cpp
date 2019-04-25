@@ -105,9 +105,12 @@ Player::Player(){
 //
 Player::interpath(node * last){
 
+	//holds the moves
 	stack<double> moveStack;
 
+	//outermost escape node
 	node * n = last;
+
 	double move = 0;		//change in angular position of player 
 	while(n != NULL){		//follow all backedges
 		//Apply logic to determine move
