@@ -279,6 +279,7 @@ bool Board::processEvents(bool AI){
 	while (SDL_PollEvent(&e) != 0){
 		if (e.type == SDL_QUIT){
 			quit = true;
+			return false;
 		}
 		if (e.type == SDL_KEYDOWN){
 			switch (e.key.keysym.sym){
@@ -376,7 +377,17 @@ void Board::render(){
 		if (abs(shells[i].size - 50) <= 10) {			//checks collision when the size of shell is close enough to the player's path radius
 			if (shells[i].walls[p_sector]) {
 				printf("You lasted %d shells\n", shellcount);
-				printf("You ded m8 \nPress enter to restart\nPress q to quit\n");
+				if (AI_enable) {
+					printf("Enabling AI...\n");
+					start = true;
+					restart();
+					SDL_Delay(300);
+					quit = false;
+					AI_enable = true;
+					//return false;
+				} else {
+					printf("You ded m8 \nPress enter to restart\nPress q to quit\n");
+				}
 				while(processEvents(false)){
 					continue;
 				}
@@ -386,7 +397,7 @@ void Board::render(){
 
 		shells[i].Draw(gRenderer);
 	}
-	
+
 
 
 	//I know it's in the wrong place, but that can be changed later
