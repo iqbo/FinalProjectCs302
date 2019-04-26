@@ -116,14 +116,14 @@ void Player::interpath(int target){
 
 	double move = 0;		//change in angular position of player 
 	while(n != NULL){		//follow all backedges
-		//Apply logic to determine move
-		
-		//Calculate change in angular position that represents this move
-		
-		//Add the move to the stack
-		moveStack.push();
+	//Apply logic to determine move
 
-		//Follow n's backedge
+	//Calculate change in angular position that represents this move
+
+	//Add the move to the stack
+	moveStack.push();
+
+	//Follow n's backedge
 	}
 	*/
 }
@@ -253,16 +253,18 @@ void Board::gameloop(){
 		//Now handle player movement
 		if (player.movingLeft){
 			player.angle -= 0.1;
+			cout << player.angle << endl;
 		}
 		if (player.movingRight){
-			player.angle += 0.1;
+			player.angle += 0.1;	
+			cout << player.angle << endl;
 		}
 
 		//Makes sure the player is within [0, 2PI]
-		if (player.angle > 2*PI) {
-			player.angle = player.angle - 2*PI;
+		if (player.angle > 2.0*PI) {
+			player.angle = player.angle - 2.0*PI;
 		} else if (player.angle < 0) {
-			player.angle = player.angle + 2*PI;
+			player.angle = player.angle + 2.0*PI;
 		}
 
 		render();
@@ -355,8 +357,11 @@ int target;
 
 //Draws and animates board
 void Board::render(){
+	printf("calling render\n");
 	int centerx = SCREEN_W / 2;
 	int centery = SCREEN_H / 2;
+	int maxrank = 2;
+
 	SDL_SetRenderDrawColor(gRenderer, bg_color[0], bg_color[1], bg_color[2], 255);
 	SDL_RenderClear(gRenderer);
 
@@ -369,9 +374,8 @@ void Board::render(){
 			shells[i].genRandom(difficulty);
 			counter += 1;
 			shellcount++;
-
-			Hexgraph hg = Hexgraph(shells[0].walls, shells[1].walls, shells[2].walls);
-			target = hg.findPath(player.angle / (PI/3));
+			maxrank = i;
+			cout << maxrank << endl << endl << endl;
 		}
 
 		if (abs(shells[i].size - 50) <= 10) {			//checks collision when the size of shell is close enough to the player's path radius
@@ -398,7 +402,21 @@ void Board::render(){
 		shells[i].Draw(gRenderer);
 	}
 
+	if(maxrank == 2){
+		cout << "Shell[2] is maxrank" << endl;
+		Hexgraph hg = Hexgraph(shells[0].walls, shells[1].walls, shells[2].walls);
+		target = hg.findPath((6 - player.angle / (PI/3)));
+	}else if(maxrank == 1){
+		cout << "Shell[1] is maxrank" << endl;
+		Hexgraph hg = Hexgraph(shells[2].walls, shells[0].walls, shells[1].walls);
+		target = hg.findPath((6 - player.angle / (PI/3)));
+	} else {
+		cout << "Shell[0] is maxrank" << endl;
+		Hexgraph hg = Hexgraph(shells[1].walls, shells[2].walls, shells[0].walls);
+		target = hg.findPath((6 - player.angle / (PI/3)));
+	}
 
+	cout << "Passed Player Pos: " << 6 - player.angle / (PI/3) << endl;
 
 	//I know it's in the wrong place, but that can be changed later
 	//Here's the AI code
@@ -411,32 +429,35 @@ void Board::render(){
 		if (player.angle > 2*PI) player.angle -= 2*PI;
 
 		//Target angle that the AI tries to get to (a little broken at the moment)
-		double t_angle = 2*PI - target * PI/3;
+		//double t_angle = 2*PI - target * PI/3;
+
+		double t_angle = 2*PI - target * PI/3;	
 
 		//More error checking
 		if (target == -1) {
 			t_angle = player.angle;
 		} else {
-			t_angle += PI/6;
 			if (t_angle > 2*PI) t_angle -= 2*PI;
 		}
 
-		t_angle -= PI/3;
+		t_angle -= PI/6;
 		if (t_angle < 0) t_angle += 2*PI;
 
 		//The part that does the work
 		if (abs(t_angle - player.angle) > 0.3) {
 			double difference = t_angle - player.angle;
-			if (difference >= 0 and difference <= PI) {
-				player.angle -= 0.1;
-				//player.angle = t_angle;
-			} else {
-				player.angle += 0.1;
-				//player.angle = t_angle;
+			if(difference >= 0.1){
+				if (difference >= 0 and difference <= PI) {
+					player.angle -= 0.1;
+					player.angle = t_angle;
+				} else {
+					player.angle += 0.1;
+					player.angle = t_angle;
+				}
 			}
 		}
 
-		printf("target: %10d t_angle: %f\n", target, t_angle);
+	//	printf("target: %10d t_angle: %f\n", target, t_angle);
 	}
 
 	//OLD CODE to draw player
@@ -495,7 +516,7 @@ int main(){
 
 	printf("Press enter to begin your journey again.\n Press q to give up on your journey. \n");
 
-	steps.insert(5);
+	steps.insert(10);
 	steps.insert(15);
 	steps.insert(35);
 	steps.insert(65);
