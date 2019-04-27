@@ -23,7 +23,7 @@ void Hexgraph::checkOpenings()
 		}
 		for (unsigned int y = 0; y < 6; y++)
 		{
-			if (nodes[i + 1][y]->wall == 1)
+			if (nodes[i][y]->wall == 0)
 			{
 				nodes[i][y]->opening = nodes[i + 1][y];
 			}
@@ -47,6 +47,14 @@ Hexgraph::Hexgraph(bool wall1[6], bool wall2[6], bool wall3[6])
 
 	//increment max rank for each call to add shell
 	//within the function maxrank
+}
+
+Hexgraph::~Hexgraph(){
+	for(int i = 0; i < nodes.size(); i++){
+		for(int j = 0; j < nodes[i].size(); j++){
+			delete nodes[i][j];
+		}
+	}
 }
 
 //constructs nodes for shell with appropiate connections
@@ -105,24 +113,21 @@ void Hexgraph::addShell(bool *walls) { //nodes[rank] = wall
 //searchs for a path from node[0][playerPos] to highest ranking node
 //rules: every node has left and ride field
 //		 if a node has an opening filed it connects to a higher ranking node
-
-// Standard old BFS (kind of)
+//Returns a single move from rank 0 to rank 1 shell based on all shells
 int Hexgraph::findPath(int playerPos) {
-	printf("playerPos: %d\n", playerPos);
+	//printf("playerPos: %d\n", playerPos);
 	//Set all backedges to null and visited to false
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 6; j++) {
 			nodes[i][j]->backedge = NULL;
 			nodes[i][j]->visited = false;
-			printf("is a node: %d\n", nodes[i][j]->rank);
+			//printf("is a node: %d\n", nodes[i][j]->rank);
 		}
 	}
 
-	//queue <node*> q;
-	//q.push(nodes[0][playerPos])
-
 	multimap <int, node*> q;
 	q.insert(make_pair(3, nodes[0][playerPos%6]));
+	
 	multimap <int, node*>::iterator top;
 
 
@@ -135,13 +140,13 @@ int Hexgraph::findPath(int playerPos) {
 		if (n->rank == 2) {
 			//print backedges
 			for (node* N = n; N != NULL; N = N->backedge) {
-				printf("%d %d\n", N->number, N->rank);
+				//printf("%d %d\n", N->number, N->rank);
 				if (N->rank == 0) return N->number;
 			}
 			//return 1;
 		}
 
-		if (! n->visited) {
+		if (!(n->visited)) {
 //			if (not n->left->visited) {
 				q.insert(make_pair(3 -n->rank, n->left));
 				if (n->left->backedge == NULL)
@@ -163,20 +168,20 @@ int Hexgraph::findPath(int playerPos) {
 		n->visited = true;
 	}
 
-	printf("No path found\n");
+	//printf("No path found\n");
 	return -1;
 }
 
 
-/*
+/* Uncomment and build hexgraph.cpp by itself for debugging path-finding
 int main(){
-	bool wall1[6] = {0, 0, 0, 0, 0, 0};
-	bool wall2[6] = {0, 1, 0, 1, 0, 1};
-	bool wall3[6] = {1, 0, 1, 0, 1, 0};
+	bool wall1[6] = {0, 1, 0, 0, 0, 0};
+	bool wall2[6] = {0, 0, 0, 0, 1, 0};
+	bool wall3[6] = {1, 0, 0, 0, 0, 0};
 
 	Hexgraph mygraph = Hexgraph(wall1, wall2, wall3);
 
-	mygraph.findPath(0);
+	mygraph.findPath(1);
 
 	mygraph.print();
 }

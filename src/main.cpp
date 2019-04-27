@@ -1,7 +1,6 @@
 #include "hexgraph.h"
 #include "board.h"
 #include <set>
-#include <stack>
 
 //Point class
 Point::Point() {
@@ -84,7 +83,7 @@ void drawLine(Point p1, Point p2, SDL_Renderer * gRenderer, vector <char> & colo
 
 //Player impltementation
 Player::Player(){
-	angle = 0;
+	angle = PI/6;
 	movingRight = false;
 	movingLeft = false;
 
@@ -97,38 +96,6 @@ Player::Player(){
 
 	return;
 }
-
-
-//player interpret path method. 
-
-//Follows backedges from a given node to the central point
-//Interprets the backedge to a player move and adds it to the stack
-//
-void Player::interpath(int target){
-
-	//TAKING OUT FOR NOW TO GET IT TO COMPILE
-	/*
-	//holds the moves
-	stack<double> moveStack;
-
-	//outermost escape node
-	node * n = last;
-
-	double move = 0;		//change in angular position of player 
-	while(n != NULL){		//follow all backedges
-	//Apply logic to determine move
-
-	//Calculate change in angular position that represents this move
-
-	//Add the move to the stack
-	moveStack.push();
-
-	//Follow n's backedge
-	}
-	*/
-}
-
-
 
 void Player::Draw(SDL_Renderer * gRenderer) {
 	Point p1, p2;
@@ -147,6 +114,44 @@ void Player::Draw(SDL_Renderer * gRenderer) {
 	}
 
 	return;
+}
+
+void Player::interpath(int target){
+		//A bit of error checking
+		if (angle < 0) angle += 2*PI;
+		if (angle > 2*PI) angle -= 2*PI;
+
+		//Target angle that the AI tries to get to (a little broken at the moment)
+		double t_angle = target * PI/3;
+
+		//More error checking
+		if (target == -1) {
+			t_angle = angle;
+		} else {
+			if (t_angle > 2*PI) t_angle -= 2*PI;
+		}
+
+		//Centers t_angle in middle of sector
+		t_angle += PI/6.0;	
+
+		if (t_angle < 0)
+			t_angle += 2*PI;
+		else if (t_angle > 2*PI) 
+			t_angle -= 2*PI;
+
+		//The part that does the work
+		if (abs(t_angle - angle) > 0.15) {
+			double difference = t_angle - angle;
+			if(difference >= 0 and difference <= PI) {
+				angle += 0.15;
+				//player.angle = t_angle;
+			} else {
+				angle -= 0.15;
+				//player.angle = t_angle;
+			}
+
+		}
+
 }
 
 //Shell implementation
@@ -357,7 +362,6 @@ int target;
 
 //Draws and animates board
 void Board::render(){
-	printf("calling render\n");
 	int centerx = SCREEN_W / 2;
 	int centery = SCREEN_H / 2;
 	int maxrank = 2;
@@ -374,101 +378,52 @@ void Board::render(){
 			shells[i].genRandom(difficulty);
 			counter += 1;
 			shellcount++;
-			maxrank = i;
-			cout << maxrank << endl << endl << endl;
+			//printf("%d shells survived\n", shellcount);
 		}
 
 		if (abs(shells[i].size - 50) <= 10) {			//checks collision when the size of shell is close enough to the player's path radius
 			if (shells[i].walls[p_sector]) {
 				printf("You lasted %d shells\n", shellcount);
-				if (AI_enable) {
-					printf("Enabling AI...\n");
-					start = true;
-					restart();
-					SDL_Delay(300);
-					quit = false;
-					AI_enable = true;
-					//return false;
-				} else {
-					printf("You ded m8 \nPress enter to restart\nPress q to quit\n");
-				}
+				printf("You died! \nPress enter to restart with control\nPress q to quit\nPress x to restart AI\n");
 				while(processEvents(false)){
-					continue;
+						continue;
 				}
-				shells[i].genRandom(0);
 			}
 		}
 
 		shells[i].Draw(gRenderer);
 	}
 
+	//Determine maxrank, the ordering of shells
+	int maxSize = shells[0].size;
+	maxrank = 0;
+
+	for(int i = 0; i < 3; i++){
+		if(shells[i].size > maxSize)
+			maxrank = i;
+	}
+
+	Hexgraph *hg;
 	if(maxrank == 2){
-		cout << "Shell[2] is maxrank" << endl;
-		Hexgraph hg = Hexgraph(shells[0].walls, shells[1].walls, shells[2].walls);
-		target = hg.findPath((6 - player.angle / (PI/3)));
+		hg = new Hexgraph(shells[0].walls, shells[1].walls, shells[2].walls);
+		target = hg->findPath(p_sector);
 	}else if(maxrank == 1){
-		cout << "Shell[1] is maxrank" << endl;
-		Hexgraph hg = Hexgraph(shells[2].walls, shells[0].walls, shells[1].walls);
-		target = hg.findPath((6 - player.angle / (PI/3)));
+		hg = new Hexgraph(shells[2].walls, shells[0].walls, shells[1].walls);
+		target = hg->findPath(p_sector);
 	} else {
-		cout << "Shell[0] is maxrank" << endl;
-		Hexgraph hg = Hexgraph(shells[1].walls, shells[2].walls, shells[0].walls);
-		target = hg.findPath((6 - player.angle / (PI/3)));
+		hg = new Hexgraph(shells[1].walls, shells[2].walls, shells[0].walls);
+		target = hg->findPath(p_sector);
 	}
+	//hg->print();
+	//cout << "Passed Player Pos: " << p_sector << endl;
 
-	cout << "Passed Player Pos: " << 6 - player.angle / (PI/3) << endl;
-
-	//I know it's in the wrong place, but that can be changed later
-	//Here's the AI code
-
-
-	if (AI_enable) {
-
-		//A bit of error checking
-		if (player.angle < 0) player.angle += 2*PI;
-		if (player.angle > 2*PI) player.angle -= 2*PI;
-
-		//Target angle that the AI tries to get to (a little broken at the moment)
-		//double t_angle = 2*PI - target * PI/3;
-
-		double t_angle = 2*PI - target * PI/3;	
-
-		//More error checking
-		if (target == -1) {
-			t_angle = player.angle;
-		} else {
-			if (t_angle > 2*PI) t_angle -= 2*PI;
-		}
-
-		t_angle -= PI/6;
-		if (t_angle < 0) t_angle += 2*PI;
-
-		//The part that does the work
-		if (abs(t_angle - player.angle) > 0.3) {
-			double difference = t_angle - player.angle;
-			if(difference >= 0.1){
-				if (difference >= 0 and difference <= PI) {
-					player.angle -= 0.1;
-					player.angle = t_angle;
-				} else {
-					player.angle += 0.1;
-					player.angle = t_angle;
-				}
-			}
-		}
-
-	//	printf("target: %10d t_angle: %f\n", target, t_angle);
+	if (AI_enable && target != p_sector) {
+		player.interpath(target);
+		//printf("target: %10d t_angle: %f\n", target, t_angle);
 	}
-
-	//OLD CODE to draw player
-	//SDL_SetRenderDrawColor(gRenderer, 200, 50, 50, 255);
-	//SDL_Rect fillRect = {50 * cos(player.angle) + centerx - 10, 50 * sin(player.angle) + centery - 10, 20, 20};
-	//SDL_RenderFillRect(gRenderer, &fillRect);
 
 	//Draw the player to the screen
 	player.Draw(gRenderer);
-
-	//Player score counter
 
 
 	//Update the window when all done
@@ -495,11 +450,11 @@ void Board::restart(){
 	shells[1].size = 325;
 	shells[2].size = 450;
 
-	shells[0].genRandom(0);
-	shells[1].genRandom(0);
-	shells[2].genRandom(0);
+	shells[0].genRandom(difficulty);
+	shells[1].genRandom(difficulty);
+	shells[2].genRandom(difficulty);
 
-	player.angle = 0;	
+	player.angle = PI/6;	
 
 	SDL_SetRenderDrawColor(gRenderer, bg_color[0], bg_color[1], bg_color[2], 255);
 	SDL_RenderClear(gRenderer);
@@ -512,15 +467,16 @@ void Board::restart(){
 //
 //Main
 int main(){
-	printf("You are a humble triangle trapped in a world dominated by hexagons.\n You must find your way out. Avoid the hexagon walls, using A to move left and D to move right.");
-
-	printf("Press enter to begin your journey again.\n Press q to give up on your journey. \n");
+	printf("You are a humble triangle trapped in a world dominated by hexagons.\n");
+	printf("You must find your way out. Avoid the hexagon walls, using A to move left and D to move right.\n");
+	printf("Press enter to begin your journey again.\nPress X for help on your journey.\n");
+	printf("Press q to give up on your journey.\n");
 
 	steps.insert(10);
 	steps.insert(15);
 	steps.insert(35);
 	steps.insert(65);
-	steps.insert(95);
+	steps.insert(10000);
 	srand(time(NULL));
 
 	Board myBoard = Board();

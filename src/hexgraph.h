@@ -30,6 +30,7 @@ public:
 class Hexgraph {
 	public:
 		Hexgraph(bool wall1[6], bool wall2[6], bool wall3[6]);
+		~Hexgraph();
 		void addShell(bool *walls);	//accepts a vector of pools to add a shell to the graph
 		void checkOpenings();		//checks for possible openings from wall to wall
 		int maxRank;			//highest rank

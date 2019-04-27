@@ -30,11 +30,8 @@ class Player {
 		Player();
 		bool movingLeft;
 		bool movingRight;
-
 		void Draw(SDL_Renderer * gRenderer);
-
 		void interpath(int target);
-
 		double angle;
 		int radius;
 	private:
