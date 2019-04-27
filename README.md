@@ -11,8 +11,9 @@ Output of hexrender:
 
 <img src="https://i.imgur.com/kzaZW9X.jpg"></img>
 
-## To compile main
-g++ -o main main.cpp -lSDL2
-
 Now with more color!
 <img src="images/superHexDemo.gif"></img>
+
+## How to play
+Type make, then ./superHex2
+Be sure to read standard out for instructions.
