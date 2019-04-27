@@ -16,4 +16,5 @@ Now with more color!
 
 ## How to play
 Type make, then ./superHex2
+
 Be sure to read standard out for instructions.
