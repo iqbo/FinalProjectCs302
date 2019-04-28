@@ -258,11 +258,11 @@ void Board::gameloop(){
 		//Now handle player movement
 		if (player.movingLeft){
 			player.angle -= 0.1;
-			cout << player.angle << endl;
+			//cout << player.angle << endl;
 		}
 		if (player.movingRight){
 			player.angle += 0.1;	
-			cout << player.angle << endl;
+			//cout << player.angle << endl;
 		}
 
 		//Makes sure the player is within [0, 2PI]
